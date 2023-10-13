@@ -31,7 +31,7 @@ jobs:
         run: mvn clean compile
 
   deploy-snapshot-package:
-    needs: [build]
+    needs: [ build ]
     name: deploy snapshot package
     runs-on: ubuntu-latest
     if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
@@ -48,7 +48,7 @@ jobs:
           distribution: adopt
 
       - name: Extract Maven project version
-        run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+        run: echo version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) >> $GITHUB_OUTPUT
         id: project
 
       - name: Check output
@@ -73,8 +73,53 @@ jobs:
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
 
-  build-deploy-package:
-    needs: [build]
+  upload-snapshot-update-site:
+    needs: [ build ]
+    name: upload snapshot update site
+    runs-on: ubuntu-latest
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: adopt
+
+      - name: Extract Maven project version
+        run: echo version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) >> $GITHUB_OUTPUT
+        id: project
+
+      - name: Check output
+        env:
+          RELEASE_VERSION: ${{ steps.project.outputs.version }}
+        run: |
+          echo $RELEASE_VERSION
+
+      - name: Verify with Maven
+        run: mvn clean verify
+
+      - name: Archive files
+        run:
+          cp org.flickit.dsl.editor.v2.repository/category.xml org.flickit.dsl.editor.v2.repository/target/repository/ &&
+          cd org.flickit.dsl.editor.v2.repository/target/repository/ &&
+          zip -r update-${{ steps.project.outputs.version }}.zip features plugins artifacts.jar content.jar category.xml &&
+          mv update-${{ steps.project.outputs.version }}.zip ../../../
+
+      - name: Upload archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: update-${{ steps.project.outputs.version }}
+          path: update-${{ steps.project.outputs.version }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+
+  deploy-package:
+    needs: [ build ]
     name: deploy package
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
@@ -102,3 +147,47 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+
+  upload-update-site:
+    needs: [ build ]
+    name: upload update site
+    runs-on: ubuntu-latest
+    if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: adopt
+
+      - name: Extract Maven project version
+        run: echo version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) >> $GITHUB_OUTPUT
+        id: project
+
+      - name: Check output
+        env:
+          RELEASE_VERSION: ${{ steps.project.outputs.version }}
+        run: |
+          echo $RELEASE_VERSION
+
+      - name: Verify with Maven
+        run: mvn clean verify
+
+      - name: Archive files
+        run:
+          cp org.flickit.dsl.editor.v2.repository/category.xml org.flickit.dsl.editor.v2.repository/target/repository/ &&
+          cd org.flickit.dsl.editor.v2.repository/target/repository/ &&
+          zip -r update-${{ steps.project.outputs.version }}.zip features plugins artifacts.jar content.jar category.xml &&
+          mv update-${{ steps.project.outputs.version }}.zip ../../../
+
+      - name: Upload archive
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          artifacts: update-${{ steps.project.outputs.version }}.zip
+          token: ${{ secrets.GH_PACKAGES_TOKEN }}
+          tag: v${{ steps.project.outputs.version }}
+          allowUpdates: true
