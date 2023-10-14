@@ -105,10 +105,10 @@ jobs:
 
       - name: Copy files
         run:
-          cp -r org.flickit.dsl.editor.v2.repository/category.xml \
-          org.flickit.dsl.editor.v2.repository/target/repository/*.jar \
-          org.flickit.dsl.editor.v2.repository/target/repository/plugins \
-          org.flickit.dsl.editor.v2.repository/target/repository/features .
+          cp org.flickit.dsl.editor.v2.repository/category.xml . &&
+          cp org.flickit.dsl.editor.v2.repository/target/repository/*.jar . &&
+          cp -r org.flickit.dsl.editor.v2.repository/target/repository/plugins . &&
+          cp -r org.flickit.dsl.editor.v2.repository/target/repository/features .
 
       - name: Upload archive
         uses: actions/upload-artifact@v3
