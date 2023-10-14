@@ -74,11 +74,11 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
 
   upload-snapshot-update-site:
-#    needs: [ build ]
+    needs: [ build ]
     name: upload snapshot update site
     runs-on: ubuntu-latest
-#    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-#      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
 
     steps:
       - name: Checkout Repository
