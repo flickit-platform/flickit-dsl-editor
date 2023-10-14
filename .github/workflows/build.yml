@@ -74,11 +74,11 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
 
   upload-snapshot-update-site:
-    needs: [ build ]
+#    needs: [ build ]
     name: upload snapshot update site
     runs-on: ubuntu-latest
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+#    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+#      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
 
     steps:
       - name: Checkout Repository
@@ -103,18 +103,23 @@ jobs:
       - name: Verify with Maven
         run: mvn clean verify
 
-      - name: Archive files
+      - name: move files
         run:
-          cp org.flickit.dsl.editor.v2.repository/category.xml org.flickit.dsl.editor.v2.repository/target/repository/ &&
-          cd org.flickit.dsl.editor.v2.repository/target/repository/ &&
-          zip -r update-${{ steps.project.outputs.version }}.zip features plugins artifacts.jar content.jar category.xml &&
-          mv update-${{ steps.project.outputs.version }}.zip ../../../
+          cp org.flickit.dsl.editor.v2.repository/target/repository/*.jar . &&
+          cp -r org.flickit.dsl.editor.v2.repository/target/repository/plugins . &&
+          cp -r org.flickit.dsl.editor.v2.repository/target/repository/features . &&
+          cp org.flickit.dsl.editor.v2.repository/category.xml .
 
       - name: Upload archive
         uses: actions/upload-artifact@v3
         with:
           name: update-${{ steps.project.outputs.version }}
-          path: update-${{ steps.project.outputs.version }}.zip
+          path: |
+            plugins
+            features
+            artifact.jar
+            content.jar
+            category.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
