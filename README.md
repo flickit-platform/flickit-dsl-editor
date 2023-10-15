@@ -15,7 +15,7 @@ Before you begin, ensure you have the necessary prerequisites in place:
 Download and install this special version of Eclipse, specifically tailored for DSL development. You can find it on the Eclipse [packages download page](https://www.eclipse.org/downloads/packages/).
 
 #### Update site
-Download the latest update site. Click the button below to download the latest update site ZIP archive.
+Download the latest update site. Click on the below button to download the latest update site ZIP archive.
 <!-- BEGIN LATEST UPDATE SITE DOWNLOAD BUTTON -->
 [![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/avansoft/flickit-dsl-editor/releases/download/v2.2.0/update-2.2.0.zip)
 <!-- END LATEST UPDATE SITE DOWNLOAD BUTTON -->
