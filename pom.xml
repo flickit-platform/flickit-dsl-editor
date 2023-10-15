@@ -25,6 +25,8 @@
 		<module>org.flickit.dsl.editor.v2.ide</module>
 		<module>org.flickit.dsl.editor.v2.ui</module>
 		<module>org.flickit.dsl.editor.v2.target</module>
+		<module>org.flickit.dsl.editor.v2.feature</module>
+		<module>org.flickit.dsl.editor.v2.repository</module>
 		<module>org.flickit.dsl.editor.v2.tests</module>
 		<module>org.flickit.dsl.editor.v2.ui.tests</module>
 	</modules>
@@ -48,13 +50,53 @@
 				<extensions>true</extensions>
 			</plugin>
 			<plugin>
-			    <groupId>org.eclipse.tycho</groupId>
-			    <artifactId>tycho-packaging-plugin</artifactId>
-			    <version>${tycho-version}</version>
-			    <configuration>
-			       <strictVersions>false</strictVersions>
-			    </configuration>
-    		</plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<id>package-feature</id>
+						<configuration>
+							<finalName>${project.artifactId}_${unqualifiedVersion}.${buildQualifier}</finalName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>feature-source</id>
+						<goals>
+							<goal>feature-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>attach-p2-metadata</id>
+						<phase>package</phase>
+						<goals>
+							<goal>p2-metadata</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
@@ -200,6 +242,11 @@
 						<failIfNoTests>false</failIfNoTests>
 						<useUIHarness>false</useUIHarness>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-p2-director-plugin</artifactId>
+					<version>${tycho-version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
