@@ -61,17 +61,17 @@ jobs:
         if: endsWith(steps.project.outputs.version, 'SNAPSHOT') == true
         run: mvn clean package
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to GitHub Packages
         if: endsWith(steps.project.outputs.version, 'SNAPSHOT') == true
         run: mvn deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   upload-snapshot-update-site:
     needs: [ build ]
@@ -121,7 +121,7 @@ jobs:
             content.jar
             category.xml
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-package:
     needs: [ build ]
@@ -142,16 +142,16 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to GitHub Packages
         run: mvn deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   upload-update-site:
     needs: [ build ]
@@ -196,7 +196,7 @@ jobs:
 #        uses: ncipollo/release-action@v1.12.0
 #        with:
 #          artifacts: update-v${{ steps.project.outputs.version }}.zip
-#          token: ${{ secrets.GH_PACKAGES_TOKEN }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
 #          tag: v${{ steps.project.outputs.version }}
 #          allowUpdates: true
 
