@@ -3,7 +3,7 @@ Automatic-Module-Name: org.flickit.dsl.editor.v2
 Bundle-ManifestVersion: 2
 Bundle-Name: org.flickit.dsl.editor.v2
 Bundle-Vendor: My Company
-Bundle-Version: 2.3.0
+Bundle-Version: 2.4.0.qualifier
 Bundle-SymbolicName: org.flickit.dsl.editor.v2; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.emf.common,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.flickit.dsl.editor.v2.services,
  org.flickit.dsl.editor.v2.generator,
  org.flickit.dsl.editor.v2,

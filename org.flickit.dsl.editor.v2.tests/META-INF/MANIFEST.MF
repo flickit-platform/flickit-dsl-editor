@@ -3,7 +3,7 @@ Automatic-Module-Name: org.flickit.dsl.editor.v2.tests
 Bundle-ManifestVersion: 2
 Bundle-Name: org.flickit.dsl.editor.v2.tests
 Bundle-Vendor: My Company
-Bundle-Version: 2.3.0
+Bundle-Version: 2.4.0.qualifier
 Bundle-SymbolicName: org.flickit.dsl.editor.v2.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.flickit.dsl.editor.v2,
@@ -12,5 +12,5 @@ Require-Bundle: org.flickit.dsl.editor.v2,
  org.eclipse.xtext.xbase.lib;bundle-version="2.14.0"
 Import-Package: org.junit.jupiter.api;version="[5.1.0,6.0.0)",
  org.junit.jupiter.api.extension;version="[5.1.0,6.0.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.flickit.dsl.editor.v2.tests;x-internal=true

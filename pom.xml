@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.flickit.dsl.editor</groupId>
-	<version>2.3.0</version>
+	<version>2.4.0-SNAPSHOT</version>
 	<artifactId>org.flickit.dsl.editor.v2.parent</artifactId>
 	<packaging>pom</packaging>
 
@@ -10,8 +10,8 @@
 		<xtextVersion>2.31.0</xtextVersion>
 		<mwe2Version>2.14.0</mwe2Version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 		<!-- Tycho settings -->
 		<tycho-version>2.7.5</tycho-version>
 		<!-- Define overridable properties for tycho-surefire-plugin -->
