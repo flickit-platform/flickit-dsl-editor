@@ -17,7 +17,7 @@ Require-Bundle: org.flickit.dsl.editor.v2,
  org.eclipse.compare,
  org.eclipse.xtext.builder
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.flickit.dsl.editor.v2.ui.quickfix,
  org.flickit.dsl.editor.v2.ui.contentassist,
  org.flickit.dsl.editor.v2.ui.internal
