@@ -154,7 +154,7 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   upload-update-site:
-    needs: [ build ]
+#    needs: [ build ]
     name: upload update site
     runs-on: ubuntu-latest
     permissions:
@@ -182,15 +182,15 @@ jobs:
         run: |
           echo $RELEASE_VERSION
 
-      - name: Verify with Maven
-        run: mvn clean verify
-
-      - name: Archive files
-        run:
-          cp org.flickit.dsl.editor.v2.repository/category.xml org.flickit.dsl.editor.v2.repository/target/repository/ &&
-          cd org.flickit.dsl.editor.v2.repository/target/repository/ &&
-          zip -r update-v${{ steps.project.outputs.version }}.zip features plugins artifacts.jar content.jar category.xml &&
-          mv update-v${{ steps.project.outputs.version }}.zip ../../../
+#      - name: Verify with Maven
+#        run: mvn clean verify
+#
+#      - name: Archive files
+#        run:
+#          cp org.flickit.dsl.editor.v2.repository/category.xml org.flickit.dsl.editor.v2.repository/target/repository/ &&
+#          cd org.flickit.dsl.editor.v2.repository/target/repository/ &&
+#          zip -r update-v${{ steps.project.outputs.version }}.zip features plugins artifacts.jar content.jar category.xml &&
+#          mv update-v${{ steps.project.outputs.version }}.zip ../../../
 
 #      - name: Upload archive
 #        uses: ncipollo/release-action@v1.12.0
@@ -205,7 +205,7 @@ jobs:
           GITHUB_USER: "avansoft"
           REPO: "flickit-dsl-editor"
           FORMAT: "zip"
-          VERSION: "2.3.0"
+          VERSION: "v${{ steps.project.outputs.version }}"
           COLOR: "blue"
           BEGIN_TAG: "<!-- BEGIN LATEST UPDATE SITE DOWNLOAD BUTTON -->"
           END_TAG: "<!-- END LATEST UPDATE SITE DOWNLOAD BUTTON -->"
@@ -213,18 +213,7 @@ jobs:
           UPDATE=$(cat README.md | perl -0777 -pe 's#(${{ env.BEGIN_TAG }})(?:.|\n)*?(${{ env.END_TAG }})#${1}\n[![Download ${{ env.FORMAT }}](https://custom-icon-badges.demolab.com/badge/-Download-${{ env.COLOR }}?style=for-the-badge&logo=download&logoColor=white "Download ${{ env.FORMAT }}")](https://github.com/${{ env.GITHUB_USER }}/${{ env.REPO }}/releases/download/${{ env.VERSION }}/update-${{ env.VERSION }}.${{ env.FORMAT }})\n${2}#g')
           echo "${UPDATE}" > README.md
 
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
-
-      - name: setup git config
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-
-      - name: commit
-        run: |
-          git add README.md
-          git commit -m "Update update-site download link on README.me file"
-          git push origin ${{ steps.extract_branch.outputs.branch }}
+      - uses: EndBug/add-and-commit@v9
+        with:
+          add: README.md
+          message: "Update update-site download link on README.me file"
