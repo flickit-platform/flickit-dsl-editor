@@ -61,17 +61,17 @@ jobs:
         if: endsWith(steps.project.outputs.version, 'SNAPSHOT') == true
         run: mvn clean package
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to GitHub Packages
         if: endsWith(steps.project.outputs.version, 'SNAPSHOT') == true
         run: mvn deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   upload-snapshot-update-site:
     needs: [ build ]
@@ -121,7 +121,7 @@ jobs:
             content.jar
             category.xml
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-package:
     needs: [ build ]
@@ -142,24 +142,25 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to GitHub Packages
         run: mvn deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   upload-update-site:
-    needs: [ build ]
+#    needs: [ build ]
     name: upload update site
     runs-on: ubuntu-latest
     permissions:
-      write-all
-    if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) }}
+      contents: write
+      packages: write
+#    if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) }}
 
     steps:
       - name: Checkout Repository
@@ -181,23 +182,23 @@ jobs:
         run: |
           echo $RELEASE_VERSION
 
-      - name: Verify with Maven
-        run: mvn clean verify
+#      - name: Verify with Maven
+#        run: mvn clean verify
+#
+#      - name: Archive files
+#        run:
+#          cp org.flickit.dsl.editor.v2.repository/category.xml org.flickit.dsl.editor.v2.repository/target/repository/ &&
+#          cd org.flickit.dsl.editor.v2.repository/target/repository/ &&
+#          zip -r update-v${{ steps.project.outputs.version }}.zip features plugins artifacts.jar content.jar category.xml &&
+#          mv update-v${{ steps.project.outputs.version }}.zip ../../../
 
-      - name: Archive files
-        run:
-          cp org.flickit.dsl.editor.v2.repository/category.xml org.flickit.dsl.editor.v2.repository/target/repository/ &&
-          cd org.flickit.dsl.editor.v2.repository/target/repository/ &&
-          zip -r update-v${{ steps.project.outputs.version }}.zip features plugins artifacts.jar content.jar category.xml &&
-          mv update-v${{ steps.project.outputs.version }}.zip ../../../
-
-      - name: Upload archive
-        uses: ncipollo/release-action@v1.12.0
-        with:
-          artifacts: update-v${{ steps.project.outputs.version }}.zip
-          token: ${{ secrets.GH_PACKAGES_TOKEN }}
-          tag: v${{ steps.project.outputs.version }}
-          allowUpdates: true
+#      - name: Upload archive
+#        uses: ncipollo/release-action@v1.12.0
+#        with:
+#          artifacts: update-v${{ steps.project.outputs.version }}.zip
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          tag: v${{ steps.project.outputs.version }}
+#          allowUpdates: true
 
       - name: Update readme download button
         env:
@@ -212,8 +213,7 @@ jobs:
           UPDATE=$(cat README.md | perl -0777 -pe 's#(${{ env.BEGIN_TAG }})(?:.|\n)*?(${{ env.END_TAG }})#${1}\n[![Download ${{ env.FORMAT }}](https://custom-icon-badges.demolab.com/badge/-Download-${{ env.COLOR }}?style=for-the-badge&logo=download&logoColor=white "Download ${{ env.FORMAT }}")](https://github.com/${{ env.GITHUB_USER }}/${{ env.REPO }}/releases/download/${{ env.VERSION }}/update-${{ env.VERSION }}.${{ env.FORMAT }})\n${2}#g')
           echo "${UPDATE}" > README.md
 
-      - name: Commit readme file changes
-        uses: EndBug/add-and-commit@v9
+      - uses: EndBug/add-and-commit@v9
         with:
           add: README.md
           message: "Update update-site download link on README.me file"
