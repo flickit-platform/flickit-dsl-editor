@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - 'main'
-    tags:
-      - 'v**'
   pull_request:
     branches:
       - '*'
@@ -17,6 +15,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    outputs:
+      project_version: ${{ steps.project.outputs.version }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -26,16 +27,27 @@ jobs:
         with:
           java-version: 17
           distribution: adopt
+
+      - name: Extract Maven project version
+        run: echo version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) >> $GITHUB_OUTPUT
+        id: project
+
+      - name: Check output
+        env:
+          RELEASE_VERSION: ${{ steps.project.outputs.version }}
+        run: |
+          echo $RELEASE_VERSION
 
       - name: Build with Maven
         run: mvn clean compile
 
-  deploy-snapshot-package:
-    needs: [ build ]
-    name: deploy snapshot package
+  deploy-package:
+    needs: [build]
+    name: deploy package
     runs-on: ubuntu-latest
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - name: Checkout Repository
@@ -46,40 +58,31 @@ jobs:
         with:
           java-version: 17
           distribution: adopt
-
-      - name: Extract Maven project version
-        run: echo version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) >> $GITHUB_OUTPUT
-        id: project
-
-      - name: Check output
-        env:
-          RELEASE_VERSION: ${{ steps.project.outputs.version }}
-        run: |
-          echo $RELEASE_VERSION
 
       - name: Build with Maven
-        if: endsWith(steps.project.outputs.version, 'SNAPSHOT') == true
         run: mvn clean package
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to GitHub Packages
-        if: endsWith(steps.project.outputs.version, 'SNAPSHOT') == true
         run: mvn deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   upload-snapshot-update-site:
-    needs: [ build ]
+    needs: [build]
     name: upload snapshot update site
     runs-on: ubuntu-latest
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+    if: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) &&
+      contains( needs.build.outputs.project_version , 'SNAPSHOT') }}
 
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -89,16 +92,6 @@ jobs:
         with:
           java-version: 17
           distribution: adopt
-
-      - name: Extract Maven project version
-        run: echo version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) >> $GITHUB_OUTPUT
-        id: project
-
-      - name: Check output
-        env:
-          RELEASE_VERSION: ${{ steps.project.outputs.version }}
-        run: |
-          echo $RELEASE_VERSION
 
       - name: Verify with Maven
         run: mvn clean verify
@@ -113,7 +106,7 @@ jobs:
       - name: Upload archive
         uses: actions/upload-artifact@v3
         with:
-          name: update-${{ steps.project.outputs.version }}
+          name: update-${{ needs.build.outputs.project_version }}
           path: |
             plugins
             features
@@ -121,45 +114,35 @@ jobs:
             content.jar
             category.xml
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy-package:
-    needs: [ build ]
-    name: deploy package
+  tag-and-release:
+    needs: [deploy-package]
+    name: tag and release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) &&
+      !contains( needs.sonar.outputs.project_version , 'SNAPSHOT') }}
 
+    permissions:
+      contents: write
+      packages: write
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v3
+      - uses: ncipollo/release-action@v1
         with:
-          java-version: 17
-          distribution: adopt
-
-      - name: Build with Maven
-        run: mvn clean package
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-          MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
-
-      - name: Deploy to GitHub Packages
-        run: mvn deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-          MAVEN_USERNAME: ${{ env.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          tag: v${{ needs.build.outputs.project_version }}
+          name: Release ${{ needs.build.outputs.project_version }}
+          makeLatest: true
 
   upload-update-site:
-    needs: [ build ]
+    needs: [tag-and-release]
     name: upload update site
     runs-on: ubuntu-latest
     permissions:
-      write-all
-    if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) }}
+      contents: write
+      packages: write
+    if: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) &&
+      !contains( needs.build.outputs.project_version , 'SNAPSHOT') }}
 
     steps:
       - name: Checkout Repository
@@ -170,16 +153,6 @@ jobs:
         with:
           java-version: 17
           distribution: adopt
-
-      - name: Extract Maven project version
-        run: echo version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) >> $GITHUB_OUTPUT
-        id: project
-
-      - name: Check output
-        env:
-          RELEASE_VERSION: ${{ steps.project.outputs.version }}
-        run: |
-          echo $RELEASE_VERSION
 
       - name: Verify with Maven
         run: mvn clean verify
@@ -188,15 +161,15 @@ jobs:
         run:
           cp org.flickit.dsl.editor.v2.repository/category.xml org.flickit.dsl.editor.v2.repository/target/repository/ &&
           cd org.flickit.dsl.editor.v2.repository/target/repository/ &&
-          zip -r update-v${{ steps.project.outputs.version }}.zip features plugins artifacts.jar content.jar category.xml &&
-          mv update-v${{ steps.project.outputs.version }}.zip ../../../
+          zip -r update-v${{ needs.build.outputs.project_version }}.zip features plugins artifacts.jar content.jar category.xml &&
+          mv update-v${{ needs.build.outputs.project_version }}.zip ../../../
 
       - name: Upload archive
         uses: ncipollo/release-action@v1.12.0
         with:
-          artifacts: update-v${{ steps.project.outputs.version }}.zip
-          token: ${{ secrets.GH_PACKAGES_TOKEN }}
-          tag: v${{ steps.project.outputs.version }}
+          artifacts: update-v${{ needs.build.outputs.project_version }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: v${{ needs.build.outputs.project_version }}
           allowUpdates: true
 
       - name: Update readme download button
@@ -204,7 +177,7 @@ jobs:
           GITHUB_USER: "avansoft"
           REPO: "flickit-dsl-editor"
           FORMAT: "zip"
-          VERSION: "v${{ steps.project.outputs.version }}"
+          VERSION: "v${{ needs.build.outputs.project_version }}"
           COLOR: "blue"
           BEGIN_TAG: "<!-- BEGIN LATEST UPDATE SITE DOWNLOAD BUTTON -->"
           END_TAG: "<!-- END LATEST UPDATE SITE DOWNLOAD BUTTON -->"
