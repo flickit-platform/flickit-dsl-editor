@@ -11,7 +11,7 @@ on:
       - '*'
 
 env:
-  MAVEN_USERNAME: avansoft
+  MAVEN_USERNAME: flickit-platform
 
 jobs:
   build:
@@ -201,7 +201,7 @@ jobs:
 
       - name: Update readme download button
         env:
-          GITHUB_USER: "avansoft"
+          GITHUB_USER: "flickit-platform"
           REPO: "flickit-dsl-editor"
           FORMAT: "zip"
           VERSION: "v${{ steps.project.outputs.version }}"
