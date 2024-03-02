@@ -66,7 +66,8 @@ Question:
     'title:' title=STRING
     'options:' options+=STRING (',' options+=STRING)*
     (affectsAttribute+=AffectsAttribute)+
-    ('mayNotBeApplicable:' mayNotBeApplicable=MayNotBeApplicable)?
+    ('mayNotBeApplicable:' mayNotBeApplicable=Boolean)?
+    ('advisable:' advisable=Boolean)?
      '}';
 
 AffectsAttribute :
@@ -83,5 +84,5 @@ FLOAT:
 Value:
 	INT | FLOAT;
 
-MayNotBeApplicable:
+Boolean:
     'true' | 'false';
