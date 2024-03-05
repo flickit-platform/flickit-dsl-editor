@@ -65,9 +65,10 @@ Question:
     ('hint:' hint=STRING)?
     'title:' title=STRING
     'options:' options+=STRING (',' options+=STRING)*
+    ('cost:' cost=INT)?
+    ('advisable:' advisable=Boolean)?
     (affectsAttribute+=AffectsAttribute)+
     ('mayNotBeApplicable:' mayNotBeApplicable=Boolean)?
-    ('advisable:' advisable=Boolean)?
      '}';
 
 AffectsAttribute :
