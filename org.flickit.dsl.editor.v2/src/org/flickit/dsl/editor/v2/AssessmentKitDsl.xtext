@@ -65,9 +65,10 @@ Question:
     ('hint:' hint=STRING)?
     'title:' title=STRING
     'options:' options+=STRING (',' options+=STRING)*
+    ('cost:' cost=Integer)?
+    ('advisable:' advisable=Boolean)?
     (affectsAttribute+=AffectsAttribute)+
     ('mayNotBeApplicable:' mayNotBeApplicable=Boolean)?
-    ('advisable:' advisable=Boolean)?
      '}';
 
 AffectsAttribute :
@@ -77,6 +78,9 @@ AffectsAttribute :
 
 OnLevel :
 	'on' 'level' level=[Level] ('with' 'values' '[' values+=Value (',' values+=Value)* ']')? ('with' 'weight' weight=INT)?;
+
+Integer:
+	INT;
 
 FLOAT:
 	INT '.' INT;
