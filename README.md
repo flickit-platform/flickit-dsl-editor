@@ -26,7 +26,7 @@ Download and install this special version of Eclipse, specifically tailored for 
 #### Update site
 Download the latest update site ZIP archive by clicking on the button below.
 <!-- BEGIN LATEST UPDATE SITE DOWNLOAD BUTTON -->
-[![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/flickit-platform/flickit-dsl-editor/releases/download/v2.4.0/update-v2.4.0.zip)
+[![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/flickit-platform-dev/flickit-dsl-editor/releases/download/v2.5.0/update-v2.5.0.zip)
 <!-- END LATEST UPDATE SITE DOWNLOAD BUTTON -->
 
 

@@ -23,6 +23,7 @@ AssessmentKit:
 Level:
     'level' name=ID '{'
     ('title:' title=STRING)
+    ('description:' description=STRING)
     ('value:' value=INT)
     (competence+=Competence (',' competence+=Competence)*)?
     '}';

@@ -10,6 +10,13 @@ public class AssessmentKitDslLevelValidator extends AbstractAssessmentKitDslVali
 	public static final int COMPETENCE_VALUE_MAX = 100;
 
 	@Check
+	public void checkDescriptionNotEmpty(Level level) {
+		if (level.getDescription() == null || level.getDescription().isBlank())
+			error("'Description' may not be empty!",
+					AssessmentKitDslPackage.Literals.LEVEL__DESCRIPTION);
+	}
+
+	@Check
 	public void checkCompetenceValueNotOutOfRange(Level level) {
 		if (hasCompetenceValueLessThanMin(level)) {
 			error("Competence value may not be less than " + COMPETENCE_VALUE_MIN, AssessmentKitDslPackage.Literals.LEVEL__COMPETENCE);
