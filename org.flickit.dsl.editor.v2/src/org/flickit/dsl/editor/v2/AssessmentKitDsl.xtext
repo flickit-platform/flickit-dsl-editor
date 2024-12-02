@@ -12,7 +12,7 @@ Include:
 	'import' importURI=STRING;
  
 BaseInfo:
-    AssessmentKit | Subject | Questionnaire | Attribute | Question | Level;
+    AssessmentKit | Subject | Questionnaire | Attribute | Question | AnswerRange | Level;
 
 AssessmentKit:
     'kit' name=ID '{'
@@ -65,12 +65,19 @@ Question:
     'questionnaire:' questionnaire=[Questionnaire]
     ('hint:' hint=STRING)?
     'title:' title=STRING
-    'options:' options+=STRING (',' options+=STRING)*
+    ('options:' options+=STRING (',' options+=STRING)* 'with' 'values' '[' values+=Value (',' values+=Value)* ']' | 'answerRange:' answerRange=[AnswerRange])
     ('cost:' cost=Integer)?
     ('advisable:' advisable=Boolean)?
     (affectsAttribute+=AffectsAttribute)+
     ('mayNotBeApplicable:' mayNotBeApplicable=Boolean)?
      '}';
+
+AnswerRange:
+  'answerRange' name=ID '{'
+  'title:' title=STRING
+  'options:' options+=STRING (',' options+=STRING)* 'with' 'values' '[' values+=Value (',' values+=Value)* ']'
+  '}'
+;     
 
 AffectsAttribute :
 	'affects' attribute=[Attribute]
@@ -78,7 +85,7 @@ AffectsAttribute :
 		(onLevel+=OnLevel)*;
 
 OnLevel :
-	'on' 'level' level=[Level] ('with' 'values' '[' values+=Value (',' values+=Value)* ']')? ('with' 'weight' weight=INT)?;
+	'on' 'level' level=[Level] ('with' 'weight' weight=INT)?;
 
 Integer:
 	INT;
