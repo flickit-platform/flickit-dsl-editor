@@ -75,7 +75,7 @@ Question:
 AnswerRange:
   'answerRange' name=ID '{'
   'title:' title=STRING
-  'options:' options+=STRING (',' options+=STRING)* 'with' 'values' '[' values+=Value (',' values+=Value)* ']'
+  'options:' options+=STRING (',' options+=STRING)* ('with' 'values' '[' values+=Value (',' values+=Value)* ']')?
   '}'
 ;     
 

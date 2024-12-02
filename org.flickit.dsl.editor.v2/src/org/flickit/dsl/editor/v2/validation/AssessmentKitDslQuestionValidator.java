@@ -1,8 +1,5 @@
 package org.flickit.dsl.editor.v2.validation;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.eclipse.xtext.util.Strings;
 import org.eclipse.xtext.validation.Check;
 import org.flickit.dsl.editor.v2.assessmentKitDsl.AssessmentKitDslPackage;
@@ -16,5 +13,17 @@ public class AssessmentKitDslQuestionValidator extends AbstractAssessmentKitDslV
 			if (Strings.isEmpty(question.getHint()))
 				error("'Hint' may not be empty!",
 						AssessmentKitDslPackage.Literals.QUESTION__HINT);
+	}
+	
+	@Check
+	public void checkQuestionOptionsNumber(Question question) {
+		if (question.getOptions() != null && !question.getOptions().isEmpty()) {
+			var optionsSize = question.getOptions().size();
+			var valuesSize = question.getValues().size();
+			
+			if (optionsSize != valuesSize)
+				error("Option values should have same size with options of question!",
+						AssessmentKitDslPackage.Literals.QUESTION__OPTIONS);
+		}
 	}
 }
