@@ -3,7 +3,7 @@ Automatic-Module-Name: org.flickit.dsl.editor.v2.tests
 Bundle-ManifestVersion: 2
 Bundle-Name: org.flickit.dsl.editor.v2.tests
 Bundle-Vendor: My Company
-Bundle-Version: 2.6.1.qualifier
+Bundle-Version: 2.7.0.qualifier
 Bundle-SymbolicName: org.flickit.dsl.editor.v2.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.flickit.dsl.editor.v2,
