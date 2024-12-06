@@ -65,7 +65,7 @@ Question:
     'questionnaire:' questionnaire=[Questionnaire]
     ('hint:' hint=STRING)?
     'title:' title=STRING
-    ('options:' options+=STRING (',' options+=STRING)* 'with' 'values' '[' values+=Value (',' values+=Value)* ']' | 'answerRange:' answerRange=[AnswerRange])
+    ('options:' options+=STRING (',' options+=STRING)* 'with' 'values' '[' values+=Value (',' values+=Value)* ']' | 'answerRange:' answerRange=[AnswerRange])?
     ('cost:' cost=Integer)?
     ('advisable:' advisable=Boolean)?
     (affectsAttribute+=AffectsAttribute)+
