@@ -2,7 +2,7 @@
 <feature
         id="org.flickit.dsl.editor.v2.feature"
         label="AssessmentKitDsl Editor Feature"
-        version="2.7.0.qualifier">
+        version="2.7.0">
 	<plugin
 			id="org.flickit.dsl.editor.v2"
 			download-size="0"
